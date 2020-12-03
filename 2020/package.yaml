@@ -13,12 +13,15 @@ dependencies:
   - hpack
   - optparse-applicative
   - path
+  - text
+  - split
 
 library:
   source-dirs: src
   exposed-modules:
     - AOC2020
     - AOC2020.Day1
+    - AOC2020.Day2
 
 executable:
   main: Main.hs
