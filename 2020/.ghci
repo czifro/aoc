@@ -1,0 +1,5 @@
+:set -package hspec
+:set -package QuickCheck
+:set -fwarn-unused-binds -fwarn-unused-imports
+:set -isrc -iapp
+:load Main AOC2020 AOC2020.Day1

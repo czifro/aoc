@@ -1,0 +1,38 @@
+name: aoc2020
+version: 0.1.0
+synopsis: AoC - Advent of Code 2020
+maintainer: Will Czifro
+category: cli
+
+ghc-options: -threaded -Wall
+
+dependencies:
+  - base >= 4.7 && < 5
+  - directory
+  - dotenv
+  - hpack
+  - optparse-applicative
+  - path
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - AOC2020
+    - AOC2020.Day1
+
+executable:
+  main: Main.hs
+  source-dirs: app
+  dependencies:
+    - aoc2020
+
+tests:
+  spec:
+    main: Spec.hs
+    source-dirs:
+      - test
+      - src
+    dependencies:
+      - hspec
+      - QuickCheck
+    build-tools: hspec-discover
