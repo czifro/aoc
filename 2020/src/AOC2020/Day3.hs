@@ -6,8 +6,6 @@ module AOC2020.Day3 ( linearizeMap
                     , TraverseRules (..)
                     ) where
 
-import Data.List
-
 {-
 
 --- Day 3: Toboggan Trajectory ---
@@ -98,10 +96,10 @@ linearizeMap (TraverseRules _ shiftBy) map' = LinearMap width height linearMap
  where
    height = length map'
    width = (*height) $ (*shiftBy) $ length $ head map'
-   linearMap = concat $ map (\(row) -> concat $ replicate (shiftBy * height) row) map'
+   linearMap = concatMap (\row -> concat $ replicate (shiftBy * height) row) map'
 
 traverseMap :: TraverseRules -> LinearMap -> TraversedPoints
-traverseMap (TraverseRules jumpBy shiftBy) (LinearMap width height map') = concat $ map (\(step) -> take 1 $ drop (traversalShift * step) map') traversedPoints
+traverseMap (TraverseRules jumpBy shiftBy) (LinearMap width height map') = concatMap (\step -> take 1 $ drop (traversalShift * step) map') traversedPoints
  where
    traversalShift = (width * jumpBy) + shiftBy
    traversedPoints = [1..height]
@@ -110,15 +108,15 @@ countTreesVisited :: TraversedPoints -> Int
 countTreesVisited p = length $ filter (=='#') p
 
 processMap :: TraverseRules -> [String] -> Int
-processMap rules = countTreesVisited . (traverseMap rules) . (linearizeMap rules)
+processMap rules = countTreesVisited . traverseMap rules . linearizeMap rules
 
 solvePart1 :: IO ()
-solvePart1 = putStr . show . (processMap rules) . lines =<< readFile "inputs/day3.txt"
+solvePart1 = putStr . show . processMap rules . lines =<< readFile "inputs/day3.txt"
  where
    rules = TraverseRules 1 3
 
 solvePart2 :: IO ()
-solvePart2 = putStr . show . (foldl (*) 1) . (\(input) -> map (\(rules) -> processMap rules input) rulesSet) . lines =<< readFile "inputs/day3.txt"
+solvePart2 = putStr . show . product . (\input -> map (`processMap` input) rulesSet) . lines =<< readFile "inputs/day3.txt"
  where
    rulesSet =
      [ TraverseRules 1 1
