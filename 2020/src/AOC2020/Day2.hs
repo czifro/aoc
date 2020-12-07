@@ -11,7 +11,7 @@ module AOC2020.Day2 ( countValidPasswords
 
 import Data.List.Split
 import qualified Data.Text as T
-import Data.List (findIndices)
+import Data.List (elemIndices)
 
 {-
 
@@ -93,17 +93,17 @@ countValidPasswords policyCheck passEntries = count True validPasswords
    validPasswords = map (policyCheck . parsePasswordEntry) passEntries
 
 solvePart1 :: IO ()
-solvePart1 = putStr . show . (countValidPasswords isValidPassword1) . lines =<< readFile "inputs/day2.txt"
+solvePart1 = putStr . show . countValidPasswords isValidPassword1 . lines =<< readFile "inputs/day2.txt"
 
 isValidPassword2 :: (PasswordPolicy, Password) -> Bool
 isValidPassword2 (PasswordPolicy firstPos secondPos requiredChar, Password pass) = firstPosHasRequiredChar `xor` secondPosHasRequiredChar
  where
-   requiredCharIndices = findIndices (==requiredChar) pass
+   requiredCharIndices = requiredChar `elemIndices` pass
    firstPosHasRequiredChar = (firstPos - 1) `elem` requiredCharIndices
    secondPosHasRequiredChar = (secondPos - 1) `elem` requiredCharIndices
 
 solvePart2 :: IO ()
-solvePart2 = putStr . show . (countValidPasswords isValidPassword2) . lines =<< readFile "inputs/day2.txt"
+solvePart2 = putStr . show . countValidPasswords isValidPassword2 . lines =<< readFile "inputs/day2.txt"
 
 solve :: IO ()
 solve = do

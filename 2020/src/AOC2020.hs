@@ -1,8 +1,7 @@
 module AOC2020 (program) where
 
 import Options.Applicative
-import Data.Semigroup ((<>))
-import Control.Monad (join)
+import Control.Monad
 import qualified AOC2020.Day1 as Day1
 import qualified AOC2020.Day2 as Day2
 import qualified AOC2020.Day3 as Day3

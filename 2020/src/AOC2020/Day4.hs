@@ -1,15 +1,14 @@
-{-# LANGUAGE FlexibleContexts #-}
 module AOC2020.Day4 ( countValidPassports
                     , validatePassport1
                     , validatePassport2
                     , solve
                     ) where
 
-import System.IO
-import Data.Either
-import Data.List
-import Data.List.Split
-import Data.Bifunctor
+import Data.Either (isRight)
+import Data.List (isPrefixOf)
+import Data.List.Split ( splitOn
+                       , splitOneOf
+                       )
 
 {-
 
@@ -141,7 +140,7 @@ validatePassport1 rawPassport | hasRequiredFields = Right()
  where
    passportFields = splitOneOf " \n" rawPassport
    requiredFields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
-   hasRequiredFields = and $ map (\f -> any (isPrefixOf f) passportFields) requiredFields
+   hasRequiredFields = all (\f -> any (isPrefixOf f) passportFields) requiredFields
 
 countValidPassports :: (String -> Either String ()) -> String -> Int
 countValidPassports validater passports = length $ filter isRight . map validater $ splitOn "\n\n" passports
@@ -168,8 +167,8 @@ validatePassportField ('e':'c':'l':':':ecl) | ecl `elem` ["amb", "blu", "brn", "
                                             | otherwise = Left ("Not a valid ecl field: ecl:" ++ ecl)
 validatePassportField ('p':'i':'d':':':pid) | length pid == 9 && all (`elem` ['0'..'9']) pid = Right ()
                                             | otherwise = Left ("Not a valid pid field: pid:" ++ pid)
-validatePassportField ('c':'i':'d':':':cid) = Right ()
-validatePassportField f                     = Left ("Not a valid field: " ++ f)
+validatePassportField ('c':'i':'d':':':_) = Right ()
+validatePassportField f                   = Left ("Not a valid field: " ++ f)
 
 validatePassport2 :: String -> Either String ()
 validatePassport2 rawPassport | length validFields == length requiredFields = Right ()

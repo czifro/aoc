@@ -3,9 +3,6 @@ module AOC2020.Day1 ( computeMagicNumber1
                     , solve
                     ) where
 
-import System.IO
-import Control.Monad
-
 {-
 --- Day 1: Report Repair ---
 
