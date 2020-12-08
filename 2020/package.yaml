@@ -24,6 +24,7 @@ library:
     - AOC2020.Day2
     - AOC2020.Day3
     - AOC2020.Day4
+    - AOC2020.Day5
 
 executable:
   main: Main.hs
