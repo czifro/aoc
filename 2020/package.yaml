@@ -15,7 +15,6 @@ dependencies:
   - path
   - text
   - split
-  - MissingH
 
 library:
   source-dirs: src
@@ -28,6 +27,7 @@ library:
     - AOC2020.Day5
     - AOC2020.Day6
     - AOC2020.Day7
+    - AOC2020.Day8
 
 executable:
   main: Main.hs
