@@ -1,17 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
-module AOC2020.Day2 ( countValidPasswords
-                    , parsePasswordPolicy
-                    , parsePasswordEntry
-                    , isValidPassword1
-                    , isValidPassword2
-                    , solve
-                    , PasswordPolicy (..)
-                    , Password (..)
-                    ) where
+module AOC2020.Day2
+  ( countValidPasswords
+  , parsePasswordPolicy
+  , parsePasswordEntry
+  , isValidPassword1
+  , isValidPassword2
+  , solve
+  , PasswordPolicy(..)
+  , Password(..)
+  )
+where
 
-import Data.List.Split
-import qualified Data.Text as T
-import Data.List (elemIndices)
+import           Data.List.Split
+import qualified Data.Text                     as T
+import           Data.List                      ( elemIndices )
 
 {-
 
@@ -62,48 +64,52 @@ readInt :: String -> Int
 readInt = read
 
 count :: Eq a => a -> [a] -> Int
-count x = length . filter (x==)
+count x = length . filter (x ==)
 
 xor :: Bool -> Bool -> Bool
-xor True False = True
-xor False True = True
-xor _ _ = False
+xor True  False = True
+xor False True  = True
+xor _     _     = False
 
 parsePasswordPolicy :: String -> PasswordPolicy
 parsePasswordPolicy str = PasswordPolicy minCount maxCount (head requiredChar)
  where
-   [countRange, requiredChar] = map trim $ splitOn " " str
-   [minCount, maxCount] = map (readInt . trim) $ splitOn "-" countRange
+  [countRange, requiredChar] = map trim $ splitOn " " str
+  [minCount  , maxCount    ] = map (readInt . trim) $ splitOn "-" countRange
 
 parsePasswordEntry :: String -> (PasswordPolicy, Password)
 parsePasswordEntry str = (passwordPolicy, (Password passStr))
  where
-   [policyStr, passStr] = map trim $ splitOn ":" str
-   passwordPolicy = parsePasswordPolicy policyStr
+  [policyStr, passStr] = map trim $ splitOn ":" str
+  passwordPolicy       = parsePasswordPolicy policyStr
 
 isValidPassword1 :: (PasswordPolicy, Password) -> Bool
-isValidPassword1 (PasswordPolicy minCount maxCount requiredChar, Password pass) = requiredCharCount >= minCount && requiredCharCount <= maxCount
- where
-   requiredCharCount = count requiredChar pass
+isValidPassword1 (PasswordPolicy minCount maxCount requiredChar, Password pass)
+  = requiredCharCount >= minCount && requiredCharCount <= maxCount
+  where requiredCharCount = count requiredChar pass
 
 countValidPasswords :: ((PasswordPolicy, Password) -> Bool) -> [String] -> Int
-countValidPasswords _ [] = 0
+countValidPasswords _           []          = 0
 countValidPasswords policyCheck passEntries = count True validPasswords
- where
-   validPasswords = map (policyCheck . parsePasswordEntry) passEntries
+  where validPasswords = map (policyCheck . parsePasswordEntry) passEntries
 
 solvePart1 :: IO ()
-solvePart1 = putStr . show . countValidPasswords isValidPassword1 . lines =<< readFile "inputs/day2.txt"
+solvePart1 =
+  putStr . show . countValidPasswords isValidPassword1 . lines =<< readFile
+    "inputs/day2.txt"
 
 isValidPassword2 :: (PasswordPolicy, Password) -> Bool
-isValidPassword2 (PasswordPolicy firstPos secondPos requiredChar, Password pass) = firstPosHasRequiredChar `xor` secondPosHasRequiredChar
+isValidPassword2 (PasswordPolicy firstPos secondPos requiredChar, Password pass)
+  = firstPosHasRequiredChar `xor` secondPosHasRequiredChar
  where
-   requiredCharIndices = requiredChar `elemIndices` pass
-   firstPosHasRequiredChar = (firstPos - 1) `elem` requiredCharIndices
-   secondPosHasRequiredChar = (secondPos - 1) `elem` requiredCharIndices
+  requiredCharIndices      = requiredChar `elemIndices` pass
+  firstPosHasRequiredChar  = (firstPos - 1) `elem` requiredCharIndices
+  secondPosHasRequiredChar = (secondPos - 1) `elem` requiredCharIndices
 
 solvePart2 :: IO ()
-solvePart2 = putStr . show . countValidPasswords isValidPassword2 . lines =<< readFile "inputs/day2.txt"
+solvePart2 =
+  putStr . show . countValidPasswords isValidPassword2 . lines =<< readFile
+    "inputs/day2.txt"
 
 solve :: IO ()
 solve = do

@@ -1,13 +1,15 @@
-module AOC2020.Day6Spec (spec) where
+module AOC2020.Day6Spec
+  ( spec
+  )
+where
 
-import Test.Hspec
-import AOC2020.Day6 ( countUniqueQuestionsAnswered
-                    , countSameQuestionsAnswered
-                    )
+import           Test.Hspec
+import           AOC2020.Day6                   ( countUniqueQuestionsAnswered
+                                                , countSameQuestionsAnswered
+                                                )
 
 testInput :: String
-testInput =
-  "abc\n\na\nb\nc\n\nab\nac\n\na\na\na\na\n\nb"
+testInput = "abc\n\na\nb\nc\n\nab\nac\n\na\na\na\na\n\nb"
 
 expected1 :: Int
 expected1 = 11

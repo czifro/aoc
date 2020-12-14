@@ -15,10 +15,12 @@ dependencies:
   - path
   - text
   - split
+  - arithmoi
 
 library:
   source-dirs: src
   exposed-modules:
+    - VirtualMachine
     - AOC2020
     - AOC2020.Day1
     - AOC2020.Day2
@@ -28,6 +30,7 @@ library:
     - AOC2020.Day6
     - AOC2020.Day7
     - AOC2020.Day8
+    - AOC2020.Day13
 
 executable:
   main: Main.hs

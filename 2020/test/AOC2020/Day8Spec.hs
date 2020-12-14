@@ -1,21 +1,25 @@
-module AOC2020.Day8Spec (spec) where
+module AOC2020.Day8Spec
+  ( spec
+  )
+where
 
-import Test.Hspec
-import AOC2020.Day8 ( runBootCode
-                    , fixAndRunBootCode
-                    )
+import           Test.Hspec
+import           AOC2020.Day8                   ( runBootCode
+                                                , fixAndRunBootCode
+                                                )
 
 testInput :: [String]
-testInput = [ "nop +0"
-            , "acc +1"
-            , "jmp +4"
-            , "acc +3"
-            , "jmp -3"
-            , "acc -99"
-            , "acc +1"
-            , "jmp -4"
-            , "acc +6"
-            ]
+testInput =
+  [ "nop +0"
+  , "acc +1"
+  , "jmp +4"
+  , "acc +3"
+  , "jmp -3"
+  , "acc -99"
+  , "acc +1"
+  , "jmp -4"
+  , "acc +6"
+  ]
 
 expected1 :: Int
 expected1 = 5

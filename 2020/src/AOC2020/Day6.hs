@@ -1,12 +1,14 @@
-module AOC2020.Day6 ( countUniqueQuestionsAnswered
-                    , countSameQuestionsAnswered
-                    , solve
-                    ) where
+module AOC2020.Day6
+  ( countUniqueQuestionsAnswered
+  , countSameQuestionsAnswered
+  , solve
+  )
+where
 
-import Data.List ( group
-                 , sort
-                 )
-import Data.List.Split (splitOn)
+import           Data.List                      ( group
+                                                , sort
+                                                )
+import           Data.List.Split                ( splitOn )
 
 {-
 
@@ -93,16 +95,30 @@ For each group, count the number of questions to which everyone answered "yes". 
 -}
 
 countUniqueQuestionsAnswered :: String -> Int
-countUniqueQuestionsAnswered = sum . map (length . group . sort . filter (/='\n')) . splitOn "\n\n"
+countUniqueQuestionsAnswered =
+  sum . map (length . group . sort . filter (/= '\n')) . splitOn "\n\n"
 
 countSameQuestionsAnswered :: String -> Int
-countSameQuestionsAnswered = sum . map (\g -> length . filter (\a -> length a == (length . lines $ g)) . group . sort . filter (/='\n') $ g) . splitOn "\n\n"
+countSameQuestionsAnswered =
+  sum
+    . map
+        (\g ->
+          length
+            . filter (\a -> length a == (length . lines $ g))
+            . group
+            . sort
+            . filter (/= '\n')
+            $ g
+        )
+    . splitOn "\n\n"
 
 solvePart1 :: IO ()
-solvePart1 = putStr . show . countUniqueQuestionsAnswered =<< readFile "inputs/day6.txt"
+solvePart1 =
+  putStr . show . countUniqueQuestionsAnswered =<< readFile "inputs/day6.txt"
 
 solvePart2 :: IO ()
-solvePart2 = putStr . show . countSameQuestionsAnswered =<< readFile "inputs/day6.txt"
+solvePart2 =
+  putStr . show . countSameQuestionsAnswered =<< readFile "inputs/day6.txt"
 
 solve :: IO ()
 solve = do

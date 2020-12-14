@@ -1,14 +1,16 @@
-module AOC2020.Day4 ( countValidPassports
-                    , validatePassport1
-                    , validatePassport2
-                    , solve
-                    ) where
+module AOC2020.Day4
+  ( countValidPassports
+  , validatePassport1
+  , validatePassport2
+  , solve
+  )
+where
 
-import Data.Either (isRight)
-import Data.List (isPrefixOf)
-import Data.List.Split ( splitOn
-                       , splitOneOf
-                       )
+import           Data.Either                    ( isRight )
+import           Data.List                      ( isPrefixOf )
+import           Data.List.Split                ( splitOn
+                                                , splitOneOf
+                                                )
 
 {-
 
@@ -135,54 +137,70 @@ readInt :: String -> Int
 readInt = read
 
 validatePassport1 :: String -> Either String ()
-validatePassport1 rawPassport | hasRequiredFields = Right()
-                              | otherwise = Left "Missing one or more required fields"
+validatePassport1 rawPassport
+  | hasRequiredFields = Right ()
+  | otherwise         = Left "Missing one or more required fields"
  where
-   passportFields = splitOneOf " \n" rawPassport
-   requiredFields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
-   hasRequiredFields = all (\f -> any (isPrefixOf f) passportFields) requiredFields
+  passportFields = splitOneOf " \n" rawPassport
+  requiredFields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
+  hasRequiredFields =
+    all (\f -> any (isPrefixOf f) passportFields) requiredFields
 
 countValidPassports :: (String -> Either String ()) -> String -> Int
-countValidPassports validater passports = length $ filter isRight . map validater $ splitOn "\n\n" passports
+countValidPassports validater passports =
+  length $ filter isRight . map validater $ splitOn "\n\n" passports
 
 rawIntIsInRange :: String -> Int -> Int -> Bool
 rawIntIsInRange str lower upper = val >= lower && val <= upper
- where
-   val = readInt str
+  where val = readInt str
 
 validatePassportField :: String -> Either String ()
-validatePassportField ['b','y','r',':',d0,d1,d2,d3]      | rawIntIsInRange [d0,d1,d2,d3] 1920 2002                        = Right ()
-                                                         | otherwise                                                      = Left ("Not a valid byr field: byr:" ++ [d0,d1,d2,d3])
-validatePassportField ['i','y','r',':',d0,d1,d2,d3]      | rawIntIsInRange [d0,d1,d2,d3] 2010 2020                        = Right ()
-                                                         | otherwise                                                      = Left ("Not a valid iyr field: iyr:" ++ [d0,d1,d2,d3])
-validatePassportField ['e','y','r',':',d0,d1,d2,d3]      | rawIntIsInRange [d0,d1,d2,d3] 2020 2030                        = Right ()
-                                                         | otherwise                                                      = Left ("Not a valid eyr field: eyr:" ++ [d0,d1,d2,d3])
-validatePassportField ['h','g','t',':',d0,d1,d2,'c','m'] | rawIntIsInRange [d0,d1,d2] 150 193                             = Right ()
-                                                         | otherwise                                                      = Left ("Not a valid hgt field: hgt:" ++ [d0,d1,d2] ++ "cm")
-validatePassportField ['h','g','t',':',d0,d1,'i','n']    | rawIntIsInRange [d0,d1] 59 76                                  = Right ()
-                                                         | otherwise                                                      = Left ("Not a valid hgt field: hgt:" ++ [d0,d1] ++ "in")
-validatePassportField ('h':'c':'l':':':'#':hcl)          | length hcl == 6 && all (`elem` (['0'..'9'] ++ ['a'..'f'])) hcl = Right ()
-                                                         | otherwise                                                      = Left ("Not a valid hcl field: hcl:#" ++ hcl)
-validatePassportField ('e':'c':'l':':':ecl)              | ecl `elem` ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]   = Right ()
-                                                         | otherwise                                                      = Left ("Not a valid ecl field: ecl:" ++ ecl)
-validatePassportField ('p':'i':'d':':':pid)              | length pid == 9 && all (`elem` ['0'..'9']) pid                 = Right ()
-                                                         | otherwise                                                      = Left ("Not a valid pid field: pid:" ++ pid)
-validatePassportField ('c':'i':'d':':':_)                                                                                 = Right ()
-validatePassportField f                                                                                                   = Left ("Not a valid field: " ++ f)
+validatePassportField ['b', 'y', 'r', ':', d0, d1, d2, d3]
+  | rawIntIsInRange [d0, d1, d2, d3] 1920 2002 = Right ()
+  | otherwise = Left ("Not a valid byr field: byr:" ++ [d0, d1, d2, d3])
+validatePassportField ['i', 'y', 'r', ':', d0, d1, d2, d3]
+  | rawIntIsInRange [d0, d1, d2, d3] 2010 2020 = Right ()
+  | otherwise = Left ("Not a valid iyr field: iyr:" ++ [d0, d1, d2, d3])
+validatePassportField ['e', 'y', 'r', ':', d0, d1, d2, d3]
+  | rawIntIsInRange [d0, d1, d2, d3] 2020 2030 = Right ()
+  | otherwise = Left ("Not a valid eyr field: eyr:" ++ [d0, d1, d2, d3])
+validatePassportField ['h', 'g', 't', ':', d0, d1, d2, 'c', 'm']
+  | rawIntIsInRange [d0, d1, d2] 150 193 = Right ()
+  | otherwise = Left ("Not a valid hgt field: hgt:" ++ [d0, d1, d2] ++ "cm")
+validatePassportField ['h', 'g', 't', ':', d0, d1, 'i', 'n']
+  | rawIntIsInRange [d0, d1] 59 76 = Right ()
+  | otherwise = Left ("Not a valid hgt field: hgt:" ++ [d0, d1] ++ "in")
+validatePassportField ('h' : 'c' : 'l' : ':' : '#' : hcl)
+  | length hcl == 6 && all (`elem` (['0' .. '9'] ++ ['a' .. 'f'])) hcl = Right
+    ()
+  | otherwise = Left ("Not a valid hcl field: hcl:#" ++ hcl)
+validatePassportField ('e' : 'c' : 'l' : ':' : ecl)
+  | ecl `elem` ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"] = Right ()
+  | otherwise = Left ("Not a valid ecl field: ecl:" ++ ecl)
+validatePassportField ('p' : 'i' : 'd' : ':' : pid)
+  | length pid == 9 && all (`elem` ['0' .. '9']) pid = Right ()
+  | otherwise = Left ("Not a valid pid field: pid:" ++ pid)
+validatePassportField ('c' : 'i' : 'd' : ':' : _) = Right ()
+validatePassportField f = Left ("Not a valid field: " ++ f)
 
 validatePassport2 :: String -> Either String ()
-validatePassport2 rawPassport | length validFields == length requiredFields = Right ()
-                              | otherwise = Left "One or more fields are missing or are invalid"
+validatePassport2 rawPassport
+  | length validFields == length requiredFields = Right ()
+  | otherwise = Left "One or more fields are missing or are invalid"
  where
-   passportFields = splitOneOf " \n" rawPassport
-   requiredFields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
-   validFields = filter isRight . map validatePassportField $ filter (\f -> take 3 f `elem` requiredFields) passportFields
+  passportFields = splitOneOf " \n" rawPassport
+  requiredFields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
+  validFields    = filter isRight . map validatePassportField $ filter
+    (\f -> take 3 f `elem` requiredFields)
+    passportFields
 
 solvePart1 :: IO ()
-solvePart1 = putStr . show . countValidPassports validatePassport1 =<< readFile "inputs/day4.txt"
+solvePart1 = putStr . show . countValidPassports validatePassport1 =<< readFile
+  "inputs/day4.txt"
 
 solvePart2 :: IO ()
-solvePart2 = putStr . show . countValidPassports validatePassport2 =<< readFile "inputs/day4.txt"
+solvePart2 = putStr . show . countValidPassports validatePassport2 =<< readFile
+  "inputs/day4.txt"
 
 solve :: IO ()
 solve = do

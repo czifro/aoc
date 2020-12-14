@@ -1,9 +1,11 @@
-module AOC2020.Day5 ( calculateSeatId
-                    , solve
-                    ) where
+module AOC2020.Day5
+  ( calculateSeatId
+  , solve
+  )
+where
 
-import Data.Char (digitToInt)
-import Data.List (maximum)
+import           Data.Char                      ( digitToInt )
+import           Data.List                      ( maximum )
 
 {-
 
@@ -64,31 +66,39 @@ What is the ID of your seat?
 convertToBinaryString :: String -> String
 convertToBinaryString = map mapChar
  where
-   mapChar :: Char -> Char
-   mapChar 'F' = '0'
-   mapChar 'B' = '1'
-   mapChar 'L' = '0'
-   mapChar 'R' = '1'
-   mapChar x = error ("Not a valid char: " ++ [x])
+  mapChar :: Char -> Char
+  mapChar 'F' = '0'
+  mapChar 'B' = '1'
+  mapChar 'L' = '0'
+  mapChar 'R' = '1'
+  mapChar x   = error ("Not a valid char: " ++ [x])
 
 calculateSeatId :: String -> Int
-calculateSeatId seat = foldl (\y x -> digitToInt x + (y * 2)) 0 $ convertToBinaryString seat
+calculateSeatId seat =
+  foldl (\y x -> digitToInt x + (y * 2)) 0 $ convertToBinaryString seat
 
 calculatePersonalSeatId :: [Int] -> Int
 calculatePersonalSeatId seats = floor partialSum - sumSeats
  where
-   maxSeat = maximum seats
-   minSeat = minimum seats
-   sumSeats = sum seats
-   partialSum1 = (maxSeat + 1) * maxSeat
-   partialSum2 = (minSeat - 1) * minSeat
-   partialSum = (fromIntegral partialSum1 - fromIntegral partialSum2) / 2
+  maxSeat     = maximum seats
+  minSeat     = minimum seats
+  sumSeats    = sum seats
+  partialSum1 = (maxSeat + 1) * maxSeat
+  partialSum2 = (minSeat - 1) * minSeat
+  partialSum  = (fromIntegral partialSum1 - fromIntegral partialSum2) / 2
 
 solvePart1 :: IO ()
-solvePart1 = putStr . show . maximum . map calculateSeatId . lines =<< readFile "inputs/day5.txt"
+solvePart1 = putStr . show . maximum . map calculateSeatId . lines =<< readFile
+  "inputs/day5.txt"
 
 solvePart2 :: IO ()
-solvePart2 = putStr . show . calculatePersonalSeatId . map calculateSeatId . lines =<< readFile "inputs/day5.txt"
+solvePart2 =
+  putStr
+    .   show
+    .   calculatePersonalSeatId
+    .   map calculateSeatId
+    .   lines
+    =<< readFile "inputs/day5.txt"
 
 solve :: IO ()
 solve = do

@@ -1,9 +1,12 @@
-module AOC2020.Day1Spec (spec) where
+module AOC2020.Day1Spec
+  ( spec
+  )
+where
 
-import Test.Hspec
-import AOC2020.Day1 ( computeMagicNumber1
-                    , computeMagicNumber2
-                    )
+import           Test.Hspec
+import           AOC2020.Day1                   ( computeMagicNumber1
+                                                , computeMagicNumber2
+                                                )
 
 testInput :: [Int]
 testInput = [1721, 979, 366, 299, 675, 1456]

@@ -1,21 +1,23 @@
 {-# LANGUAGE OverloadedStrings #-}
-module AOC2020.Day7 ( countVerticesLeadingTo
-                    , getMaxFlow
-                    , getMaxFlow'
-                    , filterNoise
-                    , createGraph
-                    , solve
-                    ) where
+module AOC2020.Day7
+  ( countVerticesLeadingTo
+  , getMaxFlow
+  , getMaxFlow'
+  , filterNoise
+  , createGraph
+  , solve
+  )
+where
 
-import Data.Text ( replace
-                 , pack
-                 , unpack
-                 )
-import Data.List.Split (chunksOf)
-import Data.List ( nub
-                 , null
-                 , concatMap
-                 )
+import           Data.Text                      ( replace
+                                                , pack
+                                                , unpack
+                                                )
+import           Data.List.Split                ( chunksOf )
+import           Data.List                      ( nub
+                                                , null
+                                                , concatMap
+                                                )
 
 {-
 
@@ -86,47 +88,70 @@ How many individual bags are required inside your single shiny gold bag?
 type Graph = ([String], [(String, String, Int)])
 
 filterNoise :: String -> String
-filterNoise = unpack . replace "bag" "" . replace "bags" "" . replace "contain" "" . replace "no other" "" . pack . filter (/=',') . filter (/='.')
+filterNoise =
+  unpack
+    . replace "bag"      ""
+    . replace "bags"     ""
+    . replace "contain"  ""
+    . replace "no other" ""
+    . pack
+    . filter (/= ',')
+    . filter (/= '.')
 
 readInt :: String -> Int
 readInt = read
 
 createGraph :: Graph -> [[String]] -> Graph
 createGraph (v, e) [] = (v, e)
-createGraph (v, e) ([f, s]:xs) = createGraph (v ++ [(unwords [f, s])], e ++ [(unwords [f, s], "", 1)]) xs
-createGraph (v, e) ((f:s:ys):xs) = createGraph (v ++ [vertex], e ++ edges) xs
+createGraph (v, e) ([f, s] : xs) =
+  createGraph (v ++ [(unwords [f, s])], e ++ [(unwords [f, s], "", 1)]) xs
+createGraph (v, e) ((f : s : ys) : xs) = createGraph
+  (v ++ [vertex], e ++ edges)
+  xs
  where
-   vertex = unwords [f, s]
-   edges = map (\[v, f', s'] -> (unwords [f, s], unwords [f', s'], readInt v)) . chunksOf 3 $ ys
+  vertex = unwords [f, s]
+  edges =
+    map (\[v, f', s'] -> (unwords [f, s], unwords [f', s'], readInt v))
+      . chunksOf 3
+      $ ys
 
 getAllPathsBackwardsFrom :: String -> Graph -> [(String, String, Int)]
-getAllPathsBackwardsFrom vertex (v, edges) | not . null $ connectedEdges = connectedEdges ++ concatMap (\(f, _, _) -> getAllPathsBackwardsFrom f (v, edges)) connectedEdges
-                                           | otherwise = []
- where
-   connectedEdges = filter (\(_, s, _) -> s == vertex) edges
+getAllPathsBackwardsFrom vertex (v, edges)
+  | not . null $ connectedEdges
+  = connectedEdges
+    ++ concatMap (\(f, _, _) -> getAllPathsBackwardsFrom f (v, edges))
+                 connectedEdges
+  | otherwise
+  = []
+  where connectedEdges = filter (\(_, s, _) -> s == vertex) edges
 
 countVerticesLeadingTo :: String -> String -> Int
-countVerticesLeadingTo vertex rawGraph = length . nub . map (\(f, _, _) -> f) $ traversedEdges
+countVerticesLeadingTo vertex rawGraph =
+  length . nub . map (\(f, _, _) -> f) $ traversedEdges
  where
-   graph = createGraph ([], []) . map words . lines . filterNoise $ rawGraph
-   traversedEdges = getAllPathsBackwardsFrom vertex graph
+  graph = createGraph ([], []) . map words . lines . filterNoise $ rawGraph
+  traversedEdges = getAllPathsBackwardsFrom vertex graph
 
 getMaxFlow' :: String -> Int -> Graph -> Int
 getMaxFlow' "" flow _ = 0
-getMaxFlow' vertex flow (v, edges) = flow + flow * (sum . map (\(_, s, f) -> getMaxFlow' s f (v, edges)) $ connectedEdges)
- where
-   connectedEdges = filter (\(f, _, _) -> f == vertex) edges
+getMaxFlow' vertex flow (v, edges) =
+  flow
+    + flow
+    * (sum . map (\(_, s, f) -> getMaxFlow' s f (v, edges)) $ connectedEdges)
+  where connectedEdges = filter (\(f, _, _) -> f == vertex) edges
 
 getMaxFlow :: String -> String -> Int
 getMaxFlow vertex rawGraph = getMaxFlow' vertex 1 graph - 1
  where
-   graph = createGraph ([], []) . map words . lines . filterNoise $ rawGraph
+  graph = createGraph ([], []) . map words . lines . filterNoise $ rawGraph
 
 solvePart1 :: IO ()
-solvePart1 = putStr . show . countVerticesLeadingTo "shiny gold" =<< readFile "inputs/day7.txt"
+solvePart1 = putStr . show . countVerticesLeadingTo "shiny gold" =<< readFile
+  "inputs/day7.txt"
 
 solvePart2 :: IO ()
-solvePart2 = putStr . show . getMaxFlow "shiny gold" =<< readFile "inputs/day7.txt"
+solvePart2 =
+  putStr . show . getMaxFlow "shiny gold" =<< readFile "inputs/day7.txt"
 
 solve :: IO ()
 solve = do

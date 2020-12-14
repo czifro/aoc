@@ -1,14 +1,16 @@
-module AOC2020.Day8 ( runBootCode
-                    , fixAndRunBootCode
-                    , solve
-                    ) where
+module AOC2020.Day8
+  ( runBootCode
+  , fixAndRunBootCode
+  , solve
+  )
+where
 
-import Data.List ( union
-                 , splitAt
-                 , (\\)
-                 , null
-                 )
-import Debug.Trace
+import           Data.List                      ( union
+                                                , splitAt
+                                                , (\\)
+                                                , null
+                                                )
+import           Debug.Trace
 
 {-
 
@@ -126,8 +128,16 @@ data HandheldGameConsole = HandheldGameConsole
                            , loopMode           :: LoopMode
                            } deriving (Show, Eq)
 
-makeHandheldGameConsole :: LoopMode -> [(Int, Instruction)] -> HandheldGameConsole
-makeHandheldGameConsole loop instructions = HandheldGameConsole {state = IDLE, register = 0, instructionPointer = 0, instructionSet = instructions, stackTrace = [], loopMode = loop}
+makeHandheldGameConsole
+  :: LoopMode -> [(Int, Instruction)] -> HandheldGameConsole
+makeHandheldGameConsole loop instructions = HandheldGameConsole
+  { state              = IDLE
+  , register           = 0
+  , instructionPointer = 0
+  , instructionSet     = instructions
+  , stackTrace         = []
+  , loopMode           = loop
+  }
 
 readInt :: String -> Int
 readInt = read
@@ -135,85 +145,120 @@ readInt = read
 parseInstructions :: [String] -> [Instruction]
 parseInstructions = foldl step []
  where
-   step :: [Instruction] -> String -> [Instruction]
-   step is x = is ++ [parseInstruction . words $ x]
-   parseInstruction :: [String] -> Instruction
-   parseInstruction ["nop", n] = NOP $ readInt . filter (/='+') $ n
-   parseInstruction ["jmp", j] = JMP $ readInt . filter (/='+') $ j
-   parseInstruction ["acc", a] = ACC $ readInt . filter (/='+') $ a
-   parseInstruction i = error ("Invalid instruction: " ++ unwords i)
+  step :: [Instruction] -> String -> [Instruction]
+  step is x = is ++ [parseInstruction . words $ x]
+  parseInstruction :: [String] -> Instruction
+  parseInstruction ["nop", n] = NOP $ readInt . filter (/= '+') $ n
+  parseInstruction ["jmp", j] = JMP $ readInt . filter (/= '+') $ j
+  parseInstruction ["acc", a] = ACC $ readInt . filter (/= '+') $ a
+  parseInstruction i          = error ("Invalid instruction: " ++ unwords i)
 
 runConsole :: HandheldGameConsole -> HandheldGameConsole
-runConsole console | state console == FAULTED = console
-                   | state console == TERMINATED || instructionPointer console >= (length . instructionSet $ console) = console { state = TERMINATED }
-                   | state console == IDLE = runConsole $ console { state = RUNNING }
-                   | state console == RUNNING = runConsole nextConsole
-                   | otherwise = error "Unexpected state"
+runConsole console
+  | state console == FAULTED
+  = console
+  | state console
+    == TERMINATED
+    || instructionPointer console
+    >= (length . instructionSet $ console)
+  = console { state = TERMINATED }
+  | state console == IDLE
+  = runConsole $ console { state = RUNNING }
+  | state console == RUNNING
+  = runConsole nextConsole
+  | otherwise
+  = error "Unexpected state"
  where
-   (index, currInstr) = (!! max 0 (instructionPointer console)) $ instructionSet console
-   hasLooped = (index, currInstr) `elem` stackTrace console
-   nextState = if hasLooped && loopMode console == NO_LOOPS then FAULTED else if currInstr == TERM then TERMINATED else RUNNING
-   nextInstructionPointer = case currInstr of
-     JMP j -> instructionPointer console + j
-     _     -> instructionPointer console + 1
-   nextRegister = case currInstr of
-     ACC a -> register console + a
-     _     -> register console
-   nextStackTrace = (index, currInstr) : stackTrace console
-   nextConsole = case nextState of
-     FAULTED -> console { state = FAULTED }
-     TERMINATED -> console { state = TERMINATED }
-     _       -> console { instructionPointer = nextInstructionPointer, register = nextRegister, stackTrace = nextStackTrace }
+  (index, currInstr) =
+    (!! max 0 (instructionPointer console)) $ instructionSet console
+  hasLooped = (index, currInstr) `elem` stackTrace console
+  nextState = if hasLooped && loopMode console == NO_LOOPS
+    then FAULTED
+    else if currInstr == TERM then TERMINATED else RUNNING
+  nextInstructionPointer = case currInstr of
+    JMP j -> instructionPointer console + j
+    _     -> instructionPointer console + 1
+  nextRegister = case currInstr of
+    ACC a -> register console + a
+    _     -> register console
+  nextStackTrace = (index, currInstr) : stackTrace console
+  nextConsole    = case nextState of
+    FAULTED    -> console { state = FAULTED }
+    TERMINATED -> console { state = TERMINATED }
+    _          -> console { instructionPointer = nextInstructionPointer
+                          , register           = nextRegister
+                          , stackTrace         = nextStackTrace
+                          }
 
 runBootCode :: [String] -> Int
-runBootCode = register . runConsole . makeHandheldGameConsole NO_LOOPS . zipInstructionIndices . parseInstructions
+runBootCode =
+  register
+    . runConsole
+    . makeHandheldGameConsole NO_LOOPS
+    . zipInstructionIndices
+    . parseInstructions
  where
-   zipInstructionIndices :: [Instruction] -> [(Int, Instruction)]
-   zipInstructionIndices is = zip [0..(length is - 1)] is
+  zipInstructionIndices :: [Instruction] -> [(Int, Instruction)]
+  zipInstructionIndices is = zip [0 .. (length is - 1)] is
 
 fixBootCode :: [(Int, Instruction)] -> [(Int, Instruction)]
 fixBootCode instructions = fixInstruction instructions (head viableFixes)
  where
-   instructionsWithTerm = zip [0..] ((map snd instructions) ++ [TERM])
-   graph = (instructionsWithTerm, foldl addEdge [] instructionsWithTerm)
-    where
-      addEdge edges (index, instr) = edges ++ edge
-       where edge = case instr of
-               JMP j -> if index + j >= length instructionsWithTerm then [] else  [((index, instr), (!! max 0 (index + j)) instructionsWithTerm)]
-               _     -> if index + 1 >= length instructionsWithTerm then [] else [((index, instr), (!! max 0 (index + 1)) instructionsWithTerm)]
+  instructionsWithTerm = zip [0 ..] ((map snd instructions) ++ [TERM])
+  graph = (instructionsWithTerm, foldl addEdge [] instructionsWithTerm)
+   where
+    addEdge edges (index, instr) = edges ++ edge
+     where
+      edge = case instr of
+        JMP j -> if index + j >= length instructionsWithTerm
+          then []
+          else [((index, instr), (!! max 0 (index + j)) instructionsWithTerm)]
+        _ -> if index + 1 >= length instructionsWithTerm
+          then []
+          else [((index, instr), (!! max 0 (index + 1)) instructionsWithTerm)]
 
-   getPathsTo :: ([(Int, Instruction)], [((Int, Instruction), (Int, Instruction))]) -> [(Int, Instruction)] -> (Int, Instruction) -> [(Int, Instruction)]
-   getPathsTo (v, e) visited node = newVisited `union` indirectConnectedNodes
-    where
-      connectedNewNodes = (map fst . filter ((==node) . snd)) e \\ visited
-      newVisited = visited `union` connectedNewNodes
-      indirectConnectedNodes = concatMap (getPathsTo (v, e) newVisited) connectedNewNodes
+  getPathsTo
+    :: ([(Int, Instruction)], [((Int, Instruction), (Int, Instruction))])
+    -> [(Int, Instruction)]
+    -> (Int, Instruction)
+    -> [(Int, Instruction)]
+  getPathsTo (v, e) visited node = newVisited `union` indirectConnectedNodes
+   where
+    connectedNewNodes = (map fst . filter ((== node) . snd)) e \\ visited
+    newVisited        = visited `union` connectedNewNodes
+    indirectConnectedNodes =
+      concatMap (getPathsTo (v, e) newVisited) connectedNewNodes
 
-   doesFixingTerminate :: [(Int, Instruction)] -> (Int, Instruction) -> Bool
-   doesFixingTerminate termInstr (index, instr) = not (any (\i -> fst i == index) termInstr) && case instr of
-     JMP _ -> any (\i -> fst i == (index + 1)) termInstr
-     NOP n -> any (\i -> fst i == (index + n)) termInstr
-     _     -> False
+  doesFixingTerminate :: [(Int, Instruction)] -> (Int, Instruction) -> Bool
+  doesFixingTerminate termInstr (index, instr) =
+    not (any (\i -> fst i == index) termInstr) && case instr of
+      JMP _ -> any (\i -> fst i == (index + 1)) termInstr
+      NOP n -> any (\i -> fst i == (index + n)) termInstr
+      _     -> False
 
-   fixInstruction :: [(Int, Instruction)] -> (Int, Instruction) -> [(Int, Instruction)]
-   fixInstruction instr (index, fix) = case fix of
-     JMP v -> instr0 ++ ((index, NOP v):instr1)
-     NOP v -> instr0 ++ ((index, JMP v):instr1)
-     _     -> instr
-    where (instr0, _:instr1) = splitAt index instr
+  fixInstruction
+    :: [(Int, Instruction)] -> (Int, Instruction) -> [(Int, Instruction)]
+  fixInstruction instr (index, fix) = case fix of
+    JMP v -> instr0 ++ ((index, NOP v) : instr1)
+    NOP v -> instr0 ++ ((index, JMP v) : instr1)
+    _     -> instr
+    where (instr0, _ : instr1) = splitAt index instr
 
-   terminatingInstructions = getPathsTo graph [] (last instructionsWithTerm)
-   possibleFixes = filter (doesFixingTerminate terminatingInstructions) instructions
-   viableFixes = filter (((head instructions) `elem`) . (getPathsTo graph [])) possibleFixes
+  terminatingInstructions = getPathsTo graph [] (last instructionsWithTerm)
+  possibleFixes =
+    filter (doesFixingTerminate terminatingInstructions) instructions
+  viableFixes =
+    filter (((head instructions) `elem`) . (getPathsTo graph [])) possibleFixes
 
 fixAndRunBootCode :: [String] -> Int
-fixAndRunBootCode rawInstructions = register . runConsole . makeHandheldGameConsole NO_LOOPS $ fixedInstructions
+fixAndRunBootCode rawInstructions =
+  register . runConsole . makeHandheldGameConsole NO_LOOPS $ fixedInstructions
  where
-   zipInstructionIndices :: [Instruction] -> [(Int, Instruction)]
-   zipInstructionIndices is = zip [0..(length is - 1)] is
+  zipInstructionIndices :: [Instruction] -> [(Int, Instruction)]
+  zipInstructionIndices is = zip [0 .. (length is - 1)] is
 
-   instructions = zipInstructionIndices . parseInstructions $ rawInstructions
-   fixedInstructions = fixBootCode instructions
+  instructions = zipInstructionIndices . parseInstructions $ rawInstructions
+  fixedInstructions = fixBootCode instructions
 
 solvePart1 :: IO ()
 solvePart1 = print . runBootCode . lines =<< readFile "inputs/day8.txt"

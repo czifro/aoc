@@ -1,7 +1,9 @@
-module AOC2020.Day1 ( computeMagicNumber1
-                    , computeMagicNumber2
-                    , solve
-                    ) where
+module AOC2020.Day1
+  ( computeMagicNumber1
+  , computeMagicNumber2
+  , solve
+  )
+where
 
 {-
 --- Day 1: Report Repair ---
@@ -30,26 +32,30 @@ In your expense report, what is the product of the three entries that sum to 202
 
 computeMagicNumber1 :: [Int] -> Int
 computeMagicNumber1 [] = 0
-computeMagicNumber1 l | length pair == 1 = head $ map (\(x,y) -> x * y) pair
-                      | otherwise = 0
+computeMagicNumber1 l | length pair == 1 = head $ map (\(x, y) -> x * y) pair
+                      | otherwise        = 0
  where
-   pair = filter (\(x,y) -> x+y == 2020) [ (x,y) | x <- l, y <- l, x < y ]
+  pair = filter (\(x, y) -> x + y == 2020) [ (x, y) | x <- l, y <- l, x < y ]
 
 readInt :: [String] -> [Int]
 readInt = map read
 
 solvePart1 :: IO ()
-solvePart1 = putStr . show . computeMagicNumber1 . readInt . words =<< readFile "inputs/day1.txt"
+solvePart1 = putStr . show . computeMagicNumber1 . readInt . words =<< readFile
+  "inputs/day1.txt"
 
 computeMagicNumber2 :: [Int] -> Int
 computeMagicNumber2 [] = 0
-computeMagicNumber2 l | length triplet == 1 = head $ map (\(x,y,z) -> x * y * z) triplet
-                      | otherwise = 0
+computeMagicNumber2 l
+  | length triplet == 1 = head $ map (\(x, y, z) -> x * y * z) triplet
+  | otherwise           = 0
  where
-   triplet = filter (\(x,y,z) -> x+y+z == 2020) [ (x,y,z) | x <- l, y <- l, z <- l, x < y && y < z ]
+  triplet = filter (\(x, y, z) -> x + y + z == 2020)
+                   [ (x, y, z) | x <- l, y <- l, z <- l, x < y && y < z ]
 
 solvePart2 :: IO ()
-solvePart2 = putStr . show . computeMagicNumber2 . readInt . words =<< readFile "inputs/day1.txt"
+solvePart2 = putStr . show . computeMagicNumber2 . readInt . words =<< readFile
+  "inputs/day1.txt"
 
 solve :: IO ()
 solve = do
